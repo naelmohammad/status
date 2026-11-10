@@ -1,0 +1,66 @@
+{
+  "zones": [
+    {
+      "name": "nael.org",
+      "subdomains": [
+        "home.nael.org",
+        "comfy.nael.org",
+        "dev.nael.org",
+        "hernme.nael.org",
+        "nael.org",
+        "nherme.nael.org",
+        "ocla.nael.org",
+        "ssh.nael.org",
+        "staging.nael.org",
+        "terminal.nael.org",
+        "www.nael.org",
+        "send.nael.org",
+        "_atproto.nael.org",
+        "_dmarc.nael.org",
+        "google._domainkey.nael.org",
+        "nael.org",
+        "brain.nael.org"
+      ]
+    },
+    {
+      "name": "appzed.com",
+      "subdomains": []
+    },
+    {
+      "name": "appzed.net",
+      "subdomains": []
+    },
+    {
+      "name": "appzed.org",
+      "subdomains": []
+    },
+    {
+      "name": "ecloudly.com",
+      "subdomains": []
+    },
+    {
+      "name": "ecloudly.net",
+      "subdomains": []
+    },
+    {
+      "name": "nmatrix.net",
+      "subdomains": []
+    },
+    {
+      "name": "nmatrix.org",
+      "subdomains": []
+    },
+    {
+      "name": "palestineday.com",
+      "subdomains": []
+    },
+    {
+      "name": "palestineday.net",
+      "subdomains": []
+    },
+    {
+      "name": "poeticislam.com",
+      "subdomains": []
+    }
+  ]
+}

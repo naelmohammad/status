@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Status Dashboard</title>
+<style>
+body{font-family:Arial,Helvetica,sans-serif;background:#f4f4f4;margin:0;padding:20px}
+.table{border-collapse:collapse;width:100%;background:#fff}
+.table th,.table td{border:1px solid #ddd;padding:8px;text-align:left}
+.green{color:#28a745}
+.red{color:#dc3545}
+</style>
+</head>
+<body>
+<h1>Status Dashboard</h1>
+<table class="table" id="status-table">
+<thead><tr><th>URL</th><th>Status</th><th>Last Checked</th></tr></thead>
+<tbody></tbody>
+</table>
+<script>
+async function load(){
+ const resp=await fetch('/api/latest');
+ if(!resp.ok){console.error('Failed fetch');return}
+ const data=await resp.json();
+ const tbody=document.querySelector('#status-table tbody');
+ tbody.innerHTML='';
+ data.results.forEach(r=>{
+ const tr=document.createElement('tr');
+ const statusClass=r.status && r.status===200?'green':'red';
+ tr.innerHTML=`<td>${r.url}</td><td class="${statusClass}">${r.status||'error'}</td><td>${r.timestamp}</td>`;
+ tbody.appendChild(tr);
+ });
+}
+load();setInterval(load,30000);
+</script>
+</body>
+</html>
