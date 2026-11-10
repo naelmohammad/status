@@ -142,27 +142,18 @@ async function runChecks(endpoints) {
 
 import { detectChanges } from './detectChanges.js';
 
-async function sendTelegram(domain, state, timestamp) {
-  const token = env.TELEGRAM_TOKEN;
-  const chatId = env.TELEGRAM_CHAT_ID;
-  if (!token || !chatId) {
-    console.warn('Telegram token or chat ID not set');
-    return;
-  }
-  const msg = `Domain ${domain} is now ${state} at ${timestamp}`;
-  const url = `https://api.telegram.org/bot${token}/sendMessage`;
-  const body = JSON.stringify({chat_id: chatId, text: msg});
-  try {
-    const resp = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body});
-    if (!resp.ok) {
-      console.error('Telegram send failed', await resp.text());
-    }
-  } catch (e) {
-    console.error('Telegram send error', e);
-  }
-}
-
 export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    if (url.pathname === "/api/latest") {
+      const payload = await env.monitor_results.get("latest");
+      if (!payload) {
+        return new Response("no data", { status: 404 });
+      }
+      return new Response(payload, { headers: { "Content-Type": "application/json" } });
+    }
+    return new Response("Not found", { status: 404 });
+  },
   async scheduled(event, env, ctx) {
     console.log('Scheduled worker starting');
     try {
@@ -174,6 +165,25 @@ export default {
       if (prevData) {
         try { prev = JSON.parse(prevData); } catch (e) { console.warn('Failed to parse prev data'); }
       }
+      const sendTelegram = async (domain, state, timestamp) => {
+        const token = env.TELEGRAM_TOKEN;
+        const chatId = env.TELEGRAM_CHAT_ID;
+        if (!token || !chatId) {
+          console.warn('Telegram token or chat ID not set');
+          return;
+        }
+        const msg = `Domain ${domain} is now ${state} at ${timestamp}`;
+        const url = `https://api.telegram.org/bot${token}/sendMessage`;
+        const body = JSON.stringify({chat_id: chatId, text: msg});
+        try {
+          const resp = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body});
+          if (!resp.ok) {
+            console.error('Telegram send failed', await resp.text());
+          }
+        } catch (e) {
+          console.error('Telegram send error', e);
+        }
+      };
       detectChanges(prev, results, sendTelegram);
       const payload = JSON.stringify({ timestamp: new Date().toISOString(), results });
       await env.monitor_results.put('latest', payload);

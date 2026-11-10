@@ -5,6 +5,12 @@ compatibility_date = "2023-10-18"
 [triggers]
 crons = ["*/5 * * * *"]
 
-[vars]
-TELEGRAM_TOKEN = ""
-TELEGRAM_CHAT_ID = ""
+kv_namespaces = [
+  { binding = "monitor_results", id = "7180d56129c44480a6f377a70cd54a48" }
+]
+
+route = "status.nael.org/api/*"
+
+[site]
+bucket = "./"
+entry-point = "./"
