@@ -142,17 +142,76 @@ async function runChecks(endpoints) {
 
 import { detectChanges } from './detectChanges.js';
 
+const DASHBOARD_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Status Dashboard</title>
+<style>
+body{font-family:system-ui,-apple-system,sans-serif;background:#0d1117;color:#c9d1d9;margin:0;padding:20px}
+h1{color:#58a6ff;margin-bottom:20px}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{border:1px solid #30363d;padding:10px;text-align:left}
+.table th{background:#161b22;color:#58a6ff}
+.green{color:#3fb950;font-weight:bold}
+.red{color:#f85149;font-weight:bold}
+.loading{text-align:center;padding:40px;color:#8b949e}
+</style>
+</head>
+<body>
+<h1>Status Dashboard</h1>
+<table class="table" id="status-table">
+<thead><tr><th>Domain</th><th>Status</th><th>Last Checked</th></tr></thead>
+<tbody id="tbody"><tr><td colspan="3" class="loading">Loading...</td></tr></tbody>
+</table>
+<script>
+async function load(){
+ try{
+  const r=await fetch('/api/latest');
+  if(!r.ok){document.getElementById('tbody').innerHTML='<tr><td colspan="3" class="red">No data available</td></tr>';return}
+  const d=await r.json();
+  const tb=document.getElementById('tbody');
+  tb.innerHTML='';
+  (d.results||[]).forEach(r=>{
+   const tr=document.createElement('tr');
+   const cls=r.status&&r.status===200?'green':'red';
+   const tdUrl=document.createElement('td');
+   tdUrl.textContent=r.url;
+   const tdStatus=document.createElement('td');
+   tdStatus.className=cls;
+   tdStatus.textContent=r.status||'error';
+   const tdTime=document.createElement('td');
+   tdTime.textContent=r.timestamp;
+   tr.appendChild(tdUrl);
+   tr.appendChild(tdStatus);
+   tr.appendChild(tdTime);
+   tb.appendChild(tr);
+  });
+ }catch(e){document.getElementById('tbody').innerHTML='<tr><td colspan="3" class="red">Load failed</td></tr>'}
+}
+load();setInterval(load,30000);
+</script>
+</body>
+</html>`;
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname === "/api/latest") {
       const payload = await env.monitor_results.get("latest");
       if (!payload) {
-        return new Response("no data", { status: 404 });
+        return new Response(JSON.stringify({ error: "no data", timestamp: new Date().toISOString() }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" }
+        });
       }
       return new Response(payload, { headers: { "Content-Type": "application/json" } });
     }
-    return new Response("Not found", { status: 404 });
+    // Serve dashboard HTML for all other paths
+    return new Response(DASHBOARD_HTML, {
+      headers: { "Content-Type": "text/html" }
+    });
   },
   async scheduled(event, env, ctx) {
     console.log('Scheduled worker starting');
