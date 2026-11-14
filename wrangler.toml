@@ -1,16 +1,14 @@
-name = "monitor-worker"
+name = "status-nael-org"
 main = "index.js"
-compatibility_date = "2023-10-18"
+compatibility_date = "2024-01-01"
 
-[triggers]
-crons = ["*/5 * * * *"]
+# Route the entire status.nael.org to this worker
+routes = ["status.nael.org/*"]
 
+# KV for health check data (optional, reuses existing)
 kv_namespaces = [
   { binding = "monitor_results", id = "7180d56129c44480a6f377a70cd54a48" }
 ]
 
-route = "status.nael.org/api/*"
-
-[site]
-bucket = "./"
-entry-point = "./"
+# Cron for periodic health checks
+triggers = { crons = ["*/5 * * * *"] }
