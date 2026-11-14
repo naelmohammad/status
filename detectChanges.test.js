@@ -1,5 +1,5 @@
-const assert = require('assert');
-const { detectChanges } = require('./detectChanges.js');
+import assert from 'node:assert';
+import { detectChanges } from './detectChanges.js';
 
 let calls = [];
 function mockSend(domain, state, timestamp) {
